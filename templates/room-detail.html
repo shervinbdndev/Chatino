@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    اتاق | {{ room.name }}
+{% endblock title %}
+{% block body %}
+    <style type="text/css">
+        #chat-messages {
+            height: 500px;
+            overflow-y: auto;
+        }
+    </style>
+
+    <section>
+        <div class="container py-5 h-100">
+            <div class="p-4 bg-dark rounded-xl">
+                <div class="chat-messages space-y-3" id="chat-messages">
+                    {% for message in messages %}
+                        <div class="p-4 bg-gray-200 rounded-xl">
+                            <p class="font-semibold">{{ message.user.username }}</p>
+                            <p>{{ message.value }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="vh-20">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-md-8">
+                    <div class="card bg-dark text-white" style="border-radius: 1rem;">
+                        <div class="card-body p-5">
+                            <div class="mt-md-4 pb-5">
+                                <h2 class="mb-4 fs-5">اتاق: {{ room }}</h2>
+                                <form class="form-outline form-white" action="." id="post-form" method="post">
+                                    {% csrf_token %}
+                                    {{ room_message_form }}
+                                    <button type="submit" id="chat-message-submit" class="btn btn-success fs-6 mt-4">ارسال پیام</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js" integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js" integrity="sha512-2rNj2KJ+D8s1ceNasTIex6z4HWyOnEYLVC3FigGOmyQCZc2eBXKgOxQmo3oKLHyfcj53uz4QMsRCWNbLd32Q1g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    {{ room.slug|json_script:'json-roomname' }}
+    {{ request.user.username|json_script:'json-username' }}
+
+    <script>
+        const roomName = JSON.parse(document.getElementById('json-roomname').textContent);
+        const userName = JSON.parse(document.getElementById('json-username').textContent);
+
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/'
+            + roomName
+            + '/'
+        );
+    
+        chatSocket.onclose = function(e) {
+            console.log('onclose')
+        }
+    
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+    
+            if (data.message) {
+                document.querySelector('#chat-messages').innerHTML += ('<b>' + data.username + '</b>: ' + data.message + '<br>');
+            } else {
+            }
+    
+            scrollToBottom();
+        };
+    
+        document.querySelector('#chat-message-input').focus();
+    
+        document.querySelector('#chat-message-submit').onclick = function(e) {
+            e.preventDefault()
+    
+            const messageInputDom = document.querySelector('#chat-message-input');
+            const message = messageInputDom.value;
+    
+            console.log({
+                'message': message,
+                'username': userName,
+                'room': roomName
+            })
+    
+            chatSocket.send(JSON.stringify({
+                'message': message,
+                'username': userName,
+                'room': roomName
+            }));
+    
+            messageInputDom.value = '';
+        };
+
+        function scrollToBottom() {
+            let objDiv = document.getElementById("chat-messages");
+            objDiv.scrollTop = objDiv.scrollHeight;
+        }
+
+        scrollToBottom();
+    </script>
+{% endblock body %}

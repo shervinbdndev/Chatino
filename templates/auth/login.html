@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    صفحه ثبت نام
+{% endblock title %}
+{% block body %}
+    <section class="vh-100">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                    <div class="card bg-dark text-white" style="border-radius: 1rem;">
+                        <div class="card-body p-5">
+                            <div class="mb-md-5 mt-md-4 pb-5">
+                                <h2 class="fw-bold mb-2 text-uppercase text-center">مشخصات خواسته شده را وارد کنید</h2>
+                                <form class="form-outline form-white mb-4" action="{% url 'login' %}" method="post">
+                                    {% csrf_token %}
+                                    <div class="mt-2">
+                                        {{ login_form.username.label }}:
+                                        {{ login_form.username }}
+                                    </div>
+                                    <div class="mt-2">
+                                        {{ login_form.password.label }}:
+                                        {{ login_form.password }}
+                                    </div>
+                                    <button class="btn btn-success fs-6 mt-4">ورود</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock body %}

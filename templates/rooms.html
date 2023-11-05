@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+    اتاق ها
+{% endblock title %}
+{% block body %}
+    <section class="vh-100">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center">
+                <h2 class="fs-4 text-white text-center mb-3">کاربر: {{ request.user.username }}</h2>
+                <div class="w-full flex flex-wrap items-center">
+                    {% for room in rooms %}
+                        <div class="w-full lg:w-1/4 px-3 py-3">
+                            <div class="p-4 bg-white shadow rounded-xl text-center">
+                                <h2 class="mb-5 text-2xl font-semibold">{{ room.name }}</h2>
+                                <h2 class=" mb-2 text-xl text-secondary font-semibold">{{ room.created_at }}</h2>
+                                <a href="{% url 'room_detail' room.slug %}" class="px-5 py-3 block rounded-xl text-white bg-dark hover:bg-gray-200">ورود</a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock body %}
